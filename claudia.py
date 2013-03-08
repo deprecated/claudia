@@ -7,6 +7,7 @@ import numpy
 import argparse
 import string
 import os
+import cStringIO as StringIO
 
 # [1/1] Some SmartDict classes
 # + /I am still not convinced that this is a good idea/
@@ -155,9 +156,28 @@ class CloudyModel(object):
 
 # #+srcname: claudia-parse-save-file
 
-def recarray_from_savefile(filepath, skip=0):
-    return numpy.genfromtxt(filepath, delimiter='\t', skip_header=skip,
-                            invalid_raise=False, names=True).view(numpy.recarray)
+def recarray_from_savefile(filepath, skip=0, niter=-1):
+    """
+    Optional argument niter for which iteration we want (starting at zero)
+
+    Return the last iteration by default
+    """
+    with open(filepath) as f:
+        # Two blank lines separate iterations
+        iterations = f.read().split("\n\n\n")
+        assert abs(niter) < len(iterations), \
+            "Requested iteration ({}) is too large".format(niter)
+        # Now make sure that the header line is attached to the required iteration
+        if niter == 0 or len(iterations) == 1:
+            # Simple case of only one iteration or where we want the first
+            dataset = StringIO.StringIO(iterations[0])
+        else:
+            # Otherwise we must splice the first line back on
+            dataset = StringIO.StringIO(
+                iterations[0].split("\n")[0] + "\n" + iterations[niter])
+
+        return numpy.genfromtxt(dataset, delimiter='\t', skip_header=skip,
+                                invalid_raise=False, names=True).view(numpy.recarray)
 
 # List of possibilities for cloudy save files
 
