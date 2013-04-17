@@ -327,8 +327,8 @@ def find_single_save_command(line):
     """
     line = line.lower()
     if line.startswith("save") or line.startswith("punch"):
-        assert('"' in line or "'" in line,
-               "No filename given in save/punch command")
+        assert '"' in line or "'" in line,\
+               "No filename given in save/punch command"
         line = cut_out(line, "save")
         line = cut_out(line, "punch")
         if "last" in line:
