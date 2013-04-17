@@ -1,0 +1,35 @@
+title Simple H II region
+// Commands controlling continuum =========
+//
+// A simple blackbody
+blackbody 40000 
+// The flux of H-ionizing photons
+phi(h) 13.0
+// Add the CMB after hot star shape & luminosity specified
+CMB 
+// 
+// Commands for density & abundances =========
+//
+// Constant H density of 1e4 pcc
+hden 4 
+init file="ism.ini"
+// HII region abundance
+abundances hii region
+//
+// miscellaneous
+sphere
+turbulence 10 km/s
+//
+// commands controlling output    =========
+normalize to "Ca B" 4861
+print line faint .01
+//
+set save prefix "hii_test"
+save overview last ".ovr"
+save lines emissivity last ".em"
+H  1  6563A  // H alpha
+O  3  5007A  // [O III] nebular line
+N  2  6584A  // [N II] nebular line 6583.41
+O  1  6300A  // [O I] 6300.3
+end of lines
+//
