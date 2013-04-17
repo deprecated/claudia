@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Claudia by deprecated</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Claudia</h1>
+        <p>Simple python library to read output from the Cloudy astrophysical plasma physics code</p>
+
+        <p class="view"><a href="https://github.com/deprecated/claudia">View the Project on GitHub <small>deprecated/claudia</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/deprecated/claudia/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/deprecated/claudia/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/deprecated/claudia">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p>Claudia is a simplistic python library for reading Cloudy output files</p>
+
+<h1>Example</h1>
+
+<p>In this example, we read in a Cloudy model called <code>testmodel</code>, and then plot the emissivity of the Hα  and [O I] lines as a function of the neutral hydrogen fraction. </p>
+
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">claudia</span> <span class="kn">import</span> <span class="n">CloudyModel</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">CloudyModel</span><span class="p">(</span><span class="s">"testmodel"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">ovr</span><span class="o">.</span><span class="n">HI</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">ems</span><span class="o">.</span><span class="n">H__1__6563A</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"H alpha"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">ovr</span><span class="o">.</span><span class="n">HI</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">ems</span><span class="o">.</span><span class="n">O__1__6300A</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"[O I] 6300"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Neutral hydrogen fraction"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"log_10 (Emissivity)"</span><span class="p">)</span> 
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">"testmodel-plot.png"</span><span class="p">)</span>
+</pre></div>
+
+<h1>How it works</h1>
+
+<p>The claudia library consists of a single class, <code>CloudyModel</code>, which is optimized for the most common use case, although it does have limited facilities for customization.  It reads all the Cloudy output files into a single structure, which can than be accessed as attributes.  </p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/deprecated">deprecated</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
