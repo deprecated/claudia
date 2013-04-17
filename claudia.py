@@ -189,7 +189,7 @@ def recarray_from_savefile(filepath, skip=0, niter=-1):
     with open(filepath) as f:
         # Two blank lines separate iterations
         iterations = f.read().split("\n\n\n")
-        assert abs(niter) < len(iterations), \
+        assert niter < len(iterations), \
             "Requested iteration ({}) is too large".format(niter)
         # Now make sure that the header line is attached to the
         # required iteration
