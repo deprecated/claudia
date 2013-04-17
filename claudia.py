@@ -4,20 +4,30 @@
 # #+srcname: claudia-imports
 
 import numpy
-import argparse
 import string
 import os
 import cStringIO as StringIO
 
 # [1/1] Some SmartDict classes
 # + /I am still not convinced that this is a good idea/
-#   + Currently I am using my modified version for the =metadata= attribute, where it can't do much harm.
-#   + My main improvement over the original is that mine supports tab completion of attributes. 
-# + Taken from the interesting [[http://code.activestate.com/recipes/577590-dictionary-whos-keys-act-like-attributes-as-well/][Python Recipe]] by [[http://code.activestate.com/recipes/users/4174115/][Sunjay Varma]]
-# + One problem with using this is that the tab completion does not work for the attributes
+#   + Currently I am using my modified version for the =metadata=
+#   attribute, where it can't do much harm.
+#   + My main improvement over the original is that mine supports tab
+#   completion of attributes.
+# + Taken from the interesting
+# [[http://code.activestate.com/recipes/577590-dictionary-whos-keys-act-like-attributes-as-well/][Python
+# Recipe]] by
+# [[http://code.activestate.com/recipes/users/4174115/][Sunjay Varma]]
+# + One problem with using this is that the tab completion does not
+# work for the attributes
 # + [X] How can this be fixed?
 #   + We could do =self.__dict__[name] = value= in =__setattr__()=
-#   + Yes, this is now implemented in =WJHSmartDict= below. It turned out that I had to change the implementation a lot. I no longer need to define =__getattr__()=, since =__setattr__()= defines both the attribute and the dict item. Meanwhile, =__setitem==()= does exactly the same as =__setattr__()= . I also had to define =__init__()=, =__delattr__()= and =update*()= for completeness. 
+#   + Yes, this is now implemented in =WJHSmartDict= below. It turned
+#   out that I had to change the implementation a lot. I no longer
+#   need to define =__getattr__()=, since =__setattr__()= defines both
+#   the attribute and the dict item. Meanwhile, =__setitem==()= does
+#   exactly the same as =__setattr__()= . I also had to define
+#   =__init__()=, =__delattr__()= and =update*()= for completeness.
 
 
 # #+srcname: claudia-smartdict
@@ -31,14 +41,16 @@ class SmartDict(dict):
             return self[name]
         except KeyError as e:
             raise AttributeError(e)
+
     def __setattr__(self, name, value):
         self[name] = value
+
 
 class WJHSmartDict(dict):
     """
     Combines the features of a class and a dict in a different way
 
-    This has the advantage that tab completion works on attributes. 
+    This has the advantage that tab completion works on attributes.
     Are there any disadvantages?
 
     The attributes and the dict keys are views on the same data:
@@ -86,7 +98,8 @@ class WJHSmartDict(dict):
 
 SAVETYPES_TWO_LINE_HEADER = [
     # "line emissivity",
-    ] 
+]
+
 
 class CloudyModel(object):
     """
@@ -102,8 +115,8 @@ class CloudyModel(object):
     indir, outdir = ".", "."
     insuff, outsuff = ".in", ".out"
     # list of save types to skip (problematic to read with genfromtxt)
-    skipsaves = ["grains physical", "transmitted continuum", "heating", "cooling"]
-
+    skipsaves = ["grains physical", "transmitted continuum",
+                 "heating", "cooling"]
 
     def __init__(self, modelname, **kwargs):
         # Any optional keywords get set as attributes
@@ -116,45 +129,56 @@ class CloudyModel(object):
         # Read in the input script
         self.infilepath = os.path.join(self.indir, modelname + self.insuff)
         with open(self.infilepath) as f:
-            self._inscript = f.read() 
+            self._inscript = f.read()
 
         # Now read in from all the save files
         for savetype, savesuff in find_save_commands(self._inscript):
             if savesuff.startswith(modelname):
-                savefile = savesuff # deal with case where outfile is written in full
+                # deal with case where outfile is written in full
+                savefile = savesuff
             else:
                 savefile = modelname + savesuff
             savefilepath = os.path.join(self.outdir, savefile)
-            saveid = savesuff[1:]       # strip the leading dot to make the attribute name
+            # strip the leading dot to make the attribute name
+            saveid = savesuff[1:]
             if not savetype in self.skipsaves:
                 skip = 0 if not savetype in SAVETYPES_TWO_LINE_HEADER else 1
                 try:
-                    setattr(self, saveid, recarray_from_savefile(savefilepath, skip))
+                    setattr(self, saveid,
+                            recarray_from_savefile(savefilepath, skip))
                 except IOError:
                     print "Failed to read from %s" % (savefilepath)
-                self.metadata[saveid] = WJHSmartDict(savetype=savetype, savefilepath=savefilepath)
-
-  
-  
+                self.metadata[saveid] = WJHSmartDict(savetype=savetype,
+                                                     savefilepath=savefilepath)
 
 # Parsing the save files
 
-# + It is almost impossible to do this cleanly with output from older versions of Cloudy. At the moment I am resorting to editing the header of the "line emissivity" file to put the header on two lines and delete the final tab. 
+# + It is almost impossible to do this cleanly with output from older
+# versions of Cloudy. At the moment I am resorting to editing the
+# header of the "line emissivity" file to put the header on two lines
+# and delete the final tab.
 
 # + [2011-08-23 Tue] Some design questions:
 
-#   + Recarray looks useful, since it gives you attribute access for free. But, if we make, for instance,  =model.ovr= actually /be/ a recarray, then it doesn't allow adding extra metadata to the instance. So, there are two possibilities:
+#   + Recarray looks useful, since it gives you attribute access for
+#   free. But, if we make, for instance, =model.ovr= actually /be/ a
+#   recarray, then it doesn't allow adding extra metadata to the
+#   instance. So, there are two possibilities:
 
-#     1. Use the composition pattern and have that =model.ovr.data= is the recarray, so we can have things like =model.ovr.savetype= as well.
+#     1. Use the composition pattern and have that =model.ovr.data= is
+#     the recarray, so we can have things like =model.ovr.savetype= as
+#     well.
 
-#     2. An alternative design would be to optimize for the most common use-case by making =model.ovr= be the recarray, and then putting the metadata somewhere else, such as =model.metadata.ovr.savetype=
+#     2. An alternative design would be to optimize for the most
+#     common use-case by making =model.ovr= be the recarray, and then
+#     putting the metadata somewhere else, such as
+#     =model.metadata.ovr.savetype=
 
-#   + For the moment, we are going to plump for the second option, even though it is a bit more work to implement. 
-
-
-
+#   + For the moment, we are going to plump for the second option,
+#   even though it is a bit more work to implement.
 
 # #+srcname: claudia-parse-save-file
+
 
 def recarray_from_savefile(filepath, skip=0, niter=-1):
     """
@@ -167,7 +191,8 @@ def recarray_from_savefile(filepath, skip=0, niter=-1):
         iterations = f.read().split("\n\n\n")
         assert abs(niter) < len(iterations), \
             "Requested iteration ({}) is too large".format(niter)
-        # Now make sure that the header line is attached to the required iteration
+        # Now make sure that the header line is attached to the
+        # required iteration
         if niter == 0 or len(iterations) == 1:
             # Simple case of only one iteration or where we want the first
             dataset = StringIO.StringIO(iterations[0])
@@ -176,31 +201,33 @@ def recarray_from_savefile(filepath, skip=0, niter=-1):
             dataset = StringIO.StringIO(
                 iterations[0].split("\n")[0] + "\n" + iterations[niter])
 
-        return numpy.genfromtxt(dataset, delimiter='\t', skip_header=skip,
-                                invalid_raise=False, names=True).view(numpy.recarray)
+        return numpy.genfromtxt(dataset, delimiter='\t',
+                                skip_header=skip,
+                                invalid_raise=False,
+                                names=True).view(numpy.recarray)
 
 # List of possibilities for cloudy save files
 
 # + Taken from Hazy1 C10 version 2011/08/14
 # + This is nowhere near exhaustive
-# + These are checked in turn, so more specific types should come first. 
+# + These are checked in turn, so more specific types should come first.
 
 # #+srcname: claudia-types-of-cloudy-save-files
 
 SAVETYPES = [
-    "diffuse continuum", 
-    "emitted continuum", 
-    "fine continuum", 
-    "grain continuum", 
-    "incident continuum", 
-    "interactive continuum", 
-    "ionizing continuum", 
-    "outward continuum", 
-    "raw continuum", 
-    "reflected continuum", 
-    "transmitted continuum", 
-    "two photon continuum", 
-    "continuum", 
+    "diffuse continuum",
+    "emitted continuum",
+    "fine continuum",
+    "grain continuum",
+    "incident continuum",
+    "interactive continuum",
+    "ionizing continuum",
+    "outward continuum",
+    "raw continuum",
+    "reflected continuum",
+    "transmitted continuum",
+    "two photon continuum",
+    "continuum",
     "cooling",
     "dr",
     "dynamics",
@@ -217,7 +244,7 @@ SAVETYPES = [
     "grain temperature",
     "heating",
     "line emissivity",
-    "line list", 
+    "line list",
     "overview",
     "PDR",
     "physical conditions",
@@ -225,13 +252,16 @@ SAVETYPES = [
     "radius",
     "source function, spectrum",
     "source function, depth",
-    ]
+]
 
 # TODO Find basic info about the run
 #     :LOGBOOK:
 #     CLOCK: [2011-08-20 Sat 18:24]--[2011-08-21 Sun 00:04] =>  5:40
 #     :END:
-# We should at least read the =title= and =save prefix= lines (currently we assume that the prefix is the same as for the input file). 
+#
+# We should at least read the =title= and =save prefix= lines
+# (currently we assume that the prefix is the same as for the input
+# file).
 
 # #+srcname: claudia-input-parse-basic-info
 
@@ -242,31 +272,39 @@ pass
 #     - Note taken on [2011-08-20 Sat 18:21] \\
 #       OK, this is just about working now, time to move on
 #     - Note taken on [2011-08-20 Sat 14:16] \\
-#       Not sure what we were doing here? What was the use-case of the cut_out function.
+#       Not sure what we were doing here? What was the use-case of the
+#       cut_out function.
 #     CLOCK: [2011-08-20 Sat 14:16]--[2011-08-20 Sat 18:24] =>  4:08
 #     CLOCK: [2011-06-28 Tue 13:14]--[2011-06-28 Tue 13:16] =>  0:02
 #     CLOCK: [2011-06-27 Mon 23:46]--[2011-06-27 Mon 23:46] =>  0:00
 #     :END:
 
-# This originally seemed like a job for regular expressions, but that quickly got out of hand. 
+# This originally seemed like a job for regular expressions, but that
+# quickly got out of hand.
 
-# Instead of allowing any type of save file, we use a finite list =SAVETYPES= since that makes the parsing much simpler. The only problem is that Cloudy allows the names to be abbreviated to four letters. 
+# Instead of allowing any type of save file, we use a finite list
+# =SAVETYPES= since that makes the parsing much simpler. The only
+# problem is that Cloudy allows the names to be abbreviated to four
+# letters.
 
 # #+srcname: claudia-get-list-of-save-files
 
+
 def find_save_commands(s):
-    """
-    Find all save commands in a Cloudy input file and return a list of [type, file] pairs
+    """Find all save commands in a Cloudy input file and return a list of
+    [type, file] pairs
 
     >>> find_save_commands('save heating last ".heat"\\nsave cooling last ".cool"')
     [('heating', '.heat'), ('cooling', '.cool')]
+
     """
-    save_commands = [] 
+    save_commands = []
     for line in s.split("\n"):
         found = find_single_save_command(line)
-        if found: save_commands.append(found)
+        if found:
+            save_commands.append(found)
     return save_commands or None
-    
+
 
 def find_single_save_command(line):
     """
@@ -285,11 +323,12 @@ def find_single_save_command(line):
     >>> find_single_save_command('this is not the right command')
 
     Note that the last command prints nothing since it returns None
-   
+
     """
     line = line.lower()
     if line.startswith("save") or line.startswith("punch"):
-        assert '"' in line or "'" in line, "No filename given in save/punch command"
+        assert('"' in line or "'" in line,
+               "No filename given in save/punch command")
         line = cut_out(line, "save")
         line = cut_out(line, "punch")
         if "last" in line:
@@ -309,15 +348,17 @@ def find_single_save_command(line):
     else:
         return None
 
-# Utility functions for input parsing 
+# Utility functions for input parsing
 # #+srcname: claudia-input-parse-utilities
+
 
 def cut_out(s, phrase):
     """
     Returns the input string <s> but with all occurrences of <phrase> deleted
 
-    <phrase> should be one or more words, separated by whitespace. Effort is made
-    to preserve one space between words, which makes it better than s.replace(phrase, '')
+    <phrase> should be one or more words, separated by
+    whitespace. Effort is made to preserve one space between words,
+    which makes it better than s.replace(phrase, '')
 
     >>> s = 'the quick brown fox, which is the brownest ever, jumped over the lazy dog'
     >>> cut_out(s, 'the')
@@ -326,8 +367,10 @@ def cut_out(s, phrase):
     ' quick brown fox, which is  brownest ever, jumped over  lazy dog'
 
     Note the extra spaces in the s.replace version
+
     """
     return ' '.join(map(string.strip, s.split(phrase))).strip()
+
 
 def look4stringinline(string, line):
     """
@@ -335,7 +378,7 @@ def look4stringinline(string, line):
 
     This is because cloudy does the same.
 
-    Case should not matter: 
+    Case should not matter:
     >>> look4stringinline('punch pressure', 'PUNC FINAL PRES')
     True
 
@@ -350,7 +393,8 @@ def look4stringinline(string, line):
     """
     words = string.split()
     for word in words:
-        if len(word) > 4: word = word[:4] 
+        if len(word) > 4:
+            word = word[:4]
         if not word.upper() in line.upper():
             return False
     return True
