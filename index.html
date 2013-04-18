@@ -7,7 +7,6 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -16,50 +15,73 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1 class="header">Claudia</h1>
-        <p class="header">Simple python library to read output from the Cloudy astrophysical plasma physics code</p>
+        <h1>Claudia</h1>
+        <p>Simple python library to read output from the Cloudy astrophysical plasma physics code</p>
+
+        <p class="view"><a href="https://github.com/deprecated/claudia">View the Project on GitHub <small>deprecated/claudia</small></a></p>
+
 
         <ul>
-          <li class="download"><a class="buttons" href="https://github.com/deprecated/claudia/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/deprecated/claudia/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/deprecated/claudia">View On GitHub</a></li>
+          <li><a href="https://github.com/deprecated/claudia/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/deprecated/claudia/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/deprecated/claudia">View On <strong>GitHub</strong></a></li>
         </ul>
-
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/deprecated">deprecated</a></p>
-
-
       </header>
       <section>
         <p>Claudia is a simplistic python library for reading <a href="https://nublado.org">Cloudy</a> output files</p>
 
-<h1>Example</h1>
+<h1>Simple example</h1>
 
-<p>In this example, we read in a Cloudy model called <code>testmodel</code>, and then plot the emissivity of the Hα  and [O I] lines as a function of the neutral hydrogen fraction. </p>
+<p>In this example, we read in the output from a Cloudy model called <code>hii_test</code>, and then plot the emissivity of the Hα and [O I] lines as a function of the neutral hydrogen fraction. </p>
 
 <div class="highlight"><pre><span class="kn">from</span> <span class="nn">claudia</span> <span class="kn">import</span> <span class="n">CloudyModel</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-<span class="n">m</span> <span class="o">=</span> <span class="n">CloudyModel</span><span class="p">(</span><span class="s">"testmodel"</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">ovr</span><span class="o">.</span><span class="n">HI</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">ems</span><span class="o">.</span><span class="n">H__1__6563A</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"H alpha"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">ovr</span><span class="o">.</span><span class="n">HI</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">ems</span><span class="o">.</span><span class="n">O__1__6300A</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"[O I] 6300"</span><span class="p">)</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">CloudyModel</span><span class="p">(</span><span class="s">"hii_test"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">ovr</span><span class="o">.</span><span class="n">HI</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">em</span><span class="o">.</span><span class="n">H__1__6563A</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"H alpha"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">ovr</span><span class="o">.</span><span class="n">HI</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">em</span><span class="o">.</span><span class="n">O__1__6300A</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"[O I] 6300"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Neutral hydrogen fraction"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"log_10 (Emissivity)"</span><span class="p">)</span> 
-<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">"testmodel-plot.png"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">"hii_test_plot.png"</span><span class="p">)</span>
 </pre></div>
+
+<p>The input file <code>hii_test.in</code> can be found in the <code>examples/</code> folder.</p>
+
+<h1>Installation</h1>
+
+<p>Copy the file <code>claudia.py</code> to your working folder (or somewhere else that python will find it).</p>
+
+<h1>How to use</h1>
+
+<h2>Running the Cloudy model</h2>
+
+<p>First you need to run a Cloudy model.  You could start by copying <code>examples/hii_test.in</code> to your working folder.  Then run the Cloudy executable, for example:</p>
+
+<div class="highlight"><pre><span class="nv">CLOUDY</span><span class="o">=</span>/full/path/to/cloudy/installation/source/cloudy.exe
+nohup <span class="nb">time</span> <span class="nv">$CLOUDY</span> &lt; hii_test.in &gt; hii_test.out &amp;
+</pre></div>
+
+<p>That will run Cloudy in the background -- it shouldn't take longer than a minute or two.  Once it finishes, you should have three new files: <code>hii_test.out</code>, <code>hii_test.ovr</code>, and <code>hii_test.em</code>.</p>
+
+<h2>Using <code>claudia.py</code> for reading the output</h2>
+
+<p>Now, you can start up python (or better ipython) and have a look at the output (see the simple example above). </p>
+
+<h2>Further details</h2>
+
+<p>Each output file is accessed as an attribute of the <code>CloudyModel</code> instance that you created.  In this case, there are only two: <code>m.ovr</code> and <code>m.em</code>.</p>
+
+<p>Each column of the file can then be acessed as a sub-attribute, e.g., <code>m.ovr.depth</code>, <code>m.em.N__2__5784A</code>, each of which return a 1D <code>numpy</code> array.  Alternatively, you can also access them as a dictionary: <code>m.ovr["depth"]</code>.  To see a list of all the columns available, you can look at <code>m.ovr.dtype.names</code>. </p>
 
 <h1>How it works</h1>
 
 <p>The claudia library consists of a single class, <code>CloudyModel</code>, which is optimized for the most common use case, although it does have limited facilities for customization.  It reads all the Cloudy output files into a single structure, which can than be accessed as attributes.  </p>
-
-<h1>Author</h1>
-
-<p><a href="github.com/deprecated">William Henney</a></p>
       </section>
       <footer>
-        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+        <p>This project is maintained by <a href="https://github.com/deprecated">deprecated</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+    <script src="javascripts/scale.fix.js"></script>
+    
   </body>
 </html>
