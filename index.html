@@ -46,9 +46,13 @@
 
 <p>The input file <code>hii_test.in</code> can be found in the <code>examples/</code> folder.</p>
 
+<h1>Author</h1>
+
+<p><a href="github.com/deprecated">William Henney </a></p>
+
 <h1>Installation</h1>
 
-<p>Copy the file <code>claudia.py</code> to your working folder (or somewhere else that python will find it).</p>
+<p>Download claudia using the links above or to the left.  Copy the file <code>claudia.py</code> to your working folder (or somewhere else that python will find it).</p>
 
 <h1>How to use</h1>
 
@@ -56,8 +60,8 @@
 
 <p>First you need to run a Cloudy model.  You could start by copying <code>examples/hii_test.in</code> to your working folder.  Then run the Cloudy executable, for example:</p>
 
-<div class="highlight"><pre><span class="nv">CLOUDY</span><span class="o">=</span>/full/path/to/cloudy/installation/source/cloudy.exe
-nohup <span class="nb">time</span> <span class="nv">$CLOUDY</span> &lt; hii_test.in &gt; hii_test.out &amp;
+<div class="highlight"><pre><span class="nv">$ CLOUDY</span><span class="o">=</span>/full/path/to/cloudy/installation/source/cloudy.exe
+<span class="nv">$ </span>nohup <span class="nb">time</span> <span class="nv">$CLOUDY</span> &lt; hii_test.in &gt; hii_test.out &amp;
 </pre></div>
 
 <p>That will run Cloudy in the background -- it shouldn't take longer than a minute or two.  Once it finishes, you should have three new files: <code>hii_test.out</code>, <code>hii_test.ovr</code>, and <code>hii_test.em</code>.</p>
@@ -70,7 +74,7 @@ nohup <span class="nb">time</span> <span class="nv">$CLOUDY</span> &lt; hii_test
 
 <p>Each output file is accessed as an attribute of the <code>CloudyModel</code> instance that you created.  In this case, there are only two: <code>m.ovr</code> and <code>m.em</code>.</p>
 
-<p>Each column of the file can then be acessed as a sub-attribute, e.g., <code>m.ovr.depth</code>, <code>m.em.N__2__5784A</code>, each of which return a 1D <code>numpy</code> array.  Alternatively, you can also access them as a dictionary: <code>m.ovr["depth"]</code>.  To see a list of all the columns available, you can look at <code>m.ovr.dtype.names</code>. </p>
+<p>Each column of the file can then be acessed as a sub-attribute, e.g., <code>m.ovr.depth</code>, <code>m.em.N__2__6584A</code>, each of which return a 1D <code>numpy</code> array.  Alternatively, you can also access them as a dictionary: <code>m.ovr["depth"]</code>.  To see a list of all the columns available, you can look at <code>m.ovr.dtype.names</code>. </p>
 
 <h1>How it works</h1>
 
