@@ -8,21 +8,24 @@ In this example, we read in the output from a Cloudy model called `hii_test`, an
 from claudia import CloudyModel
 import matplotlib.pyplot as plt
 m = CloudyModel("hii_test")
-plt.plot(m.ovr.HI, m.em.H__1__6563A, label="H alpha")
-plt.plot(m.ovr.HI, m.em.O__1__6300A, label="[O I] 6300")
+plt.plot(m.ovr.HI, 10**m.em.H__1__6563A, label="H alpha")
+plt.plot(m.ovr.HI, 10**(1.0 + m.em.O__1__6300A), label="10 x [O I] 6300")
 plt.xlabel("Neutral hydrogen fraction")
-plt.ylabel("log_10 (Emissivity)") 
+plt.ylabel("Emissivity, erg/s/cc")
+plt.legend()
 plt.savefig("hii_test_plot.png")
 ```
+
+![Example emissivity plot](images/hii_test_plot.png)
 
 The input file `hii_test.in` can be found in the `examples/` folder.
 
 # Author
 
-[William Henney ](github.com/deprecated)
+[William Henney](github.com/deprecated)
 
 # Installation
-Copy the file `claudia.py` to your working folder (or somewhere else that python will find it).
+Download claudia using the links above or to the left.  Copy the file `claudia.py` to your working folder (or somewhere else that python will find it).
 
 # How to use
 
