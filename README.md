@@ -17,6 +17,10 @@ plt.savefig("hii_test_plot.png")
 
 The input file `hii_test.in` can be found in the `examples/` folder.
 
+# Author
+
+[William Henney ](github.com/deprecated)
+
 # Installation
 Copy the file `claudia.py` to your working folder (or somewhere else that python will find it).
 
@@ -26,8 +30,8 @@ Copy the file `claudia.py` to your working folder (or somewhere else that python
 First you need to run a Cloudy model.  You could start by copying `examples/hii_test.in` to your working folder.  Then run the Cloudy executable, for example:
 
 ```sh
-CLOUDY=/full/path/to/cloudy/installation/source/cloudy.exe
-nohup time $CLOUDY < hii_test.in > hii_test.out &
+$ CLOUDY=/full/path/to/cloudy/installation/source/cloudy.exe
+$ nohup time $CLOUDY < hii_test.in > hii_test.out &
 ```
 
 That will run Cloudy in the background -- it shouldn't take longer than a minute or two.  Once it finishes, you should have three new files: `hii_test.out`, `hii_test.ovr`, and `hii_test.em`.
@@ -38,7 +42,7 @@ Now, you can start up python (or better ipython) and have a look at the output (
 ## Further details
 Each output file is accessed as an attribute of the `CloudyModel` instance that you created.  In this case, there are only two: `m.ovr` and `m.em`.
 
-Each column of the file can then be acessed as a sub-attribute, e.g., `m.ovr.depth`, `m.em.N__2__5784A`, each of which return a 1D `numpy` array.  Alternatively, you can also access them as a dictionary: `m.ovr["depth"]`.  To see a list of all the columns available, you can look at `m.ovr.dtype.names`. 
+Each column of the file can then be acessed as a sub-attribute, e.g., `m.ovr.depth`, `m.em.N__2__6584A`, each of which return a 1D `numpy` array.  Alternatively, you can also access them as a dictionary: `m.ovr["depth"]`.  To see a list of all the columns available, you can look at `m.ovr.dtype.names`. 
 
 
 # How it works
