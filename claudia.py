@@ -116,7 +116,10 @@ class CloudyModel(object):
     insuff, outsuff = ".in", ".out"
     # list of save types to skip (problematic to read with genfromtxt)
     skipsaves = ["grains physical", "transmitted continuum",
-                 "heating", "cooling"]
+                 "heating", "cooling", "ages", "time dependent", "linelist", ".lin", ".tim"]
+
+    niter = -1
+    itersep = "\n\n\n"
 
     def __init__(self, modelname, **kwargs):
         # Any optional keywords get set as attributes
@@ -141,11 +144,11 @@ class CloudyModel(object):
             savefilepath = os.path.join(self.outdir, savefile)
             # strip the leading dot to make the attribute name
             saveid = savesuff[1:]
-            if not savetype in self.skipsaves:
+            if not (savetype in self.skipsaves or savesuff in self.skipsaves):
                 skip = 0 if not savetype in SAVETYPES_TWO_LINE_HEADER else 1
                 try:
                     setattr(self, saveid,
-                            recarray_from_savefile(savefilepath, skip))
+                            recarray_from_savefile(savefilepath, skip, self.niter, self.itersep))
                 except IOError:
                     print "Failed to read from %s" % (savefilepath)
                 self.metadata[saveid] = WJHSmartDict(savetype=savetype,
@@ -180,17 +183,18 @@ class CloudyModel(object):
 # #+srcname: claudia-parse-save-file
 
 
-def recarray_from_savefile(filepath, skip=0, niter=-1):
+def recarray_from_savefile(filepath, skip=0, niter=-1, itersep="\n\n\n"):
     """
     Optional argument niter for which iteration we want (starting at zero)
+    Optional argument itersep for separator between iterations (2 blank lines by default)
 
     Return the last iteration by default
     """
     with open(filepath) as f:
         # Two blank lines separate iterations
-        iterations = f.read().split("\n\n\n")
+        iterations = f.read().split(itersep)
         assert niter < len(iterations), \
-            "Requested iteration ({}) is too large".format(niter)
+            "Requested iteration ({}) is too large (only {} in {})".format(niter, len(iterations), filepath)
         # Now make sure that the header line is attached to the
         # required iteration
         if niter == 0 or len(iterations) == 1:
