@@ -2,11 +2,12 @@
 # Imports
 
 # #+srcname: claudia-imports
-
+from __future__ import print_function
 import numpy
-import string
 import os
-import cStringIO as StringIO
+
+# This should work in Python 3 and 2
+from io import BytesIO
 
 # [1/1] Some SmartDict classes
 # + /I am still not convinced that this is a good idea/
@@ -116,7 +117,8 @@ class CloudyModel(object):
     insuff, outsuff = ".in", ".out"
     # list of save types to skip (problematic to read with genfromtxt)
     skipsaves = ["grains physical", "transmitted continuum",
-                 "heating", "cooling", "ages", "time dependent", "linelist", ".lin", ".tim"]
+                 "heating", "cooling", "ages", "time dependent", "linelist",
+                 ".lin", ".tim"]
 
     niter = -1
     itersep = "\n\n\n"
@@ -148,9 +150,12 @@ class CloudyModel(object):
                 skip = 0 if not savetype in SAVETYPES_TWO_LINE_HEADER else 1
                 try:
                     setattr(self, saveid,
-                            recarray_from_savefile(savefilepath, skip, self.niter, self.itersep))
-                except IOError:
-                    print "Failed to read from %s" % (savefilepath)
+                            recarray_from_savefile(savefilepath,
+                                                   skip, self.niter, self.itersep))
+                except IOError as e:
+                    print ("Failed to read from %s" % (savefilepath))
+                    if '.ovr' in savefilepath:
+                        raise e
                 self.metadata[saveid] = WJHSmartDict(savetype=savetype,
                                                      savefilepath=savefilepath)
 
@@ -192,23 +197,30 @@ def recarray_from_savefile(filepath, skip=0, niter=-1, itersep="\n\n\n"):
     """
     with open(filepath) as f:
         # Two blank lines separate iterations
-        iterations = f.read().split(itersep)
+        filedata = f.read()
+        
+        iterations = filedata.split(itersep)
         assert niter < len(iterations), \
-            "Requested iteration ({}) is too large (only {} in {})".format(niter, len(iterations), filepath)
+            "Requested iteration ({}) is too large (only {} in {})".format(
+                niter, len(iterations), filepath)
         # Now make sure that the header line is attached to the
         # required iteration
         if niter == 0 or len(iterations) == 1:
             # Simple case of only one iteration or where we want the first
-            dataset = StringIO.StringIO(iterations[0])
+            chosendata = iterations[0]
         else:
             # Otherwise we must splice the first line back on
-            dataset = StringIO.StringIO(
-                iterations[0].split("\n")[0] + "\n" + iterations[niter])
+            chosendata = iterations[0].split("\n")[0] + "\n" + iterations[niter]
 
-        return numpy.genfromtxt(dataset, delimiter='\t',
-                                skip_header=skip,
-                                invalid_raise=False,
-                                names=True).view(numpy.recarray)
+        if chosendata:
+            return numpy.genfromtxt(BytesIO(chosendata.encode('latin-1')),
+                                    delimiter='\t',
+                                    skip_header=skip,
+                                    invalid_raise=False,
+                                    names=True).view(numpy.recarray)
+        else:
+            return None
+        
 
 # List of possibilities for cloudy save files
 
@@ -373,12 +385,12 @@ def cut_out(s, phrase):
     Note the extra spaces in the s.replace version
 
     """
-    return ' '.join(map(string.strip, s.split(phrase))).strip()
+    return ' '.join(map(str.strip, s.split(phrase))).strip()
 
 
-def look4stringinline(string, line):
+def look4stringinline(s, line):
     """
-    Look for string in line, only comparing the first 4 characters of each word
+    Look for string <s> in line, only comparing the first 4 characters of each word
 
     This is because cloudy does the same.
 
@@ -395,7 +407,7 @@ def look4stringinline(string, line):
     False
 
     """
-    words = string.split()
+    words = s.split()
     for word in words:
         if len(word) > 4:
             word = word[:4]
