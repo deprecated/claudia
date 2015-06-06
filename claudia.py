@@ -117,8 +117,10 @@ class CloudyModel(object):
     insuff, outsuff = ".in", ".out"
     # list of save types to skip (problematic to read with genfromtxt)
     skipsaves = ["grains physical", "transmitted continuum",
-                 "heating", "cooling", "ages", "time dependent", "linelist",
+                 "ages", "time dependent", "linelist",
                  ".lin", ".tim"]
+    # list of save types 
+    first_n_columns_only = {"heating": 4, "cooling": 4,} 
 
     niter = -1
     itersep = "\n\n\n"
@@ -148,10 +150,12 @@ class CloudyModel(object):
             saveid = savesuff[1:]
             if not (savetype in self.skipsaves or savesuff in self.skipsaves):
                 skip = 0 if not savetype in SAVETYPES_TWO_LINE_HEADER else 1
+                ncol = self.first_n_columns_only.get(savetype, None)
                 try:
                     setattr(self, saveid,
                             recarray_from_savefile(savefilepath,
-                                                   skip, self.niter, self.itersep))
+                                                   skip, self.niter,
+                                                   self.itersep, ncol))
                 except IOError as e:
                     print ("Failed to read from %s" % (savefilepath))
                     if '.ovr' in savefilepath:
@@ -188,10 +192,12 @@ class CloudyModel(object):
 # #+srcname: claudia-parse-save-file
 
 
-def recarray_from_savefile(filepath, skip=0, niter=-1, itersep="\n\n\n"):
+def recarray_from_savefile(filepath, skip=0, niter=-1, itersep="\n\n\n", ncolumns=None):
     """
     Optional argument niter for which iteration we want (starting at zero)
-    Optional argument itersep for separator between iterations (2 blank lines by default)
+    Optional argument itersep for separator between iterations 
+    (2 blank lines by default)
+    Optional argument <ncolumns> for slicing all but the first <ncolumns> columns
 
     Return the last iteration by default
     """
@@ -211,6 +217,13 @@ def recarray_from_savefile(filepath, skip=0, niter=-1, itersep="\n\n\n"):
         else:
             # Otherwise we must splice the first line back on
             chosendata = iterations[0].split("\n")[0] + "\n" + iterations[niter]
+
+        # Slice of unwanted columns if asked to do so
+        if ncolumns is not None:
+            # Split out the rows on \n, split out the fields on \t,
+            # choose only those required, then sew all back together
+            chosendata = '\n'.join(['\t'.join(row.split('\t')[:ncolumns])
+                                    for row in chosendata.split("\n")])
 
         if chosendata:
             return numpy.genfromtxt(BytesIO(chosendata.encode('latin-1')),
